@@ -1,0 +1,184 @@
+openapi: "3.0.3"
+info:
+  title: CartApi
+  description: CartApi
+  version: "1.0.0"
+
+tags:
+  - name: Cart
+  - name: Product
+
+paths:
+  /cartNew:
+    get:
+      description: Get the cart
+      operationId: getCart
+      tags:
+        - Cart
+      responses:
+        '200':
+          description: Cart obtained successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+
+  /cartNew/add-item-new:
+    post:
+      description: Add a new item to the cart
+      operationId: addNewItemToCart
+      tags:
+        - Cart
+      requestBody:
+        description: Product to be added
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: Item added to the cart successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+
+  /cartNew/get-item-by-name-new:
+    get:
+      description: Get an item by its name
+      operationId: getItemByNameNew
+      tags:
+        - Cart
+      parameters:
+        - name: name
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Name of the product
+      responses:
+        '200':
+          description: Product found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Product not found
+
+  /cartNew/delete-item-new:
+    delete:
+      description: Remove an item from the cart
+      operationId: RemovedItem
+      tags:
+        - Cart
+      parameters:
+        - name: productName
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Name of the product
+      responses:
+        '200':
+          description: Item removed from the cart successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '404':
+          description: Product not found in the cart
+
+  /products:
+    get:
+      description: Get all products
+      operationId: getAllProducts
+      tags:
+        - Product
+      responses:
+        '200':
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+
+  /products/{productId}:
+    get:
+      description: Get a product by its ID
+      operationId: getProductById
+      tags:
+        - Product
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the product
+      responses:
+        '200':
+          description: Product found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Product not found
+
+  /products/delete-product-by-id:
+    delete:
+      description: Delete a product by its ID
+      operationId: deleteProductById
+      tags:
+        - Product
+      parameters:
+        - name: productId
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: ID of the product
+      responses:
+        '200':
+          description: Product deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Product not found
+
+components:
+  schemas:
+    Cart:
+      type: object
+      properties:
+        cartId:
+          type: integer
+          description: ID of the cart
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+
+    Product:
+      type: object
+      properties:
+        productId:
+          type: integer
+          format: int32
+          description: ID of the product
+        productName:
+          type: string
+          description: Name of the product
+        productPrice:
+          type: integer
+          format: int32
+          description: Price of the product
+        cartId:
+          type: integer
+          description: ID of the cart the product belongs to
