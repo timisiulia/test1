@@ -1,7 +1,9 @@
 package com.example.test1.Models;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
@@ -10,6 +12,8 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "cart")
 public class Cart {
 
@@ -26,22 +30,12 @@ public class Cart {
     private double totalPrice;
 
     @Column(name = "status")
-    private String status;
+    private  Status status;
     //eunm in Db, enumerate type
     //fa endponynt pt calcul prod din cos
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "cart_id")
     private List<Product> products = new ArrayList<>();
-
-    public Cart() {
-    }
-
-    public Cart(int userId, double totalPrice, String status, List<Product> products) {
-        this.userId = userId;
-        this.totalPrice = totalPrice;
-        this.status = status;
-        this.products = products;
-    }
 
 }

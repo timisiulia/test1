@@ -18,7 +18,7 @@ import java.util.Optional;
 public class ProductControllerNew implements ProductApi {
 
     @Autowired
-   // private final ProductService productService;
+    // private final ProductService productService;
     private final CartService cartService;
 
     public ProductControllerNew(CartService cartService) {
@@ -35,30 +35,27 @@ public class ProductControllerNew implements ProductApi {
         return ProductApi.super.getRequest();
     }
 
+
     @Override
-//    public ResponseEntity<List<Object>> getAllProducts() {
-//        return ProductApi.super.getAllProducts();
-//    }
     public ResponseEntity<List<Product>> getAllProducts() {
-        List<Product> products = cartService.getCart().getProducts();
+        List<Product> products = cartService.getAllProducts();
         return ResponseEntity.ok(products);
     }
 
     @Override
-    public ResponseEntity<Product> getProductById(@PathVariable Integer productId) {
+    public ResponseEntity<Product> getProductById(@PathVariable("productId") Integer productId) {
         Product product = cartService.getProductById(productId);
         if (product != null) {
             return ResponseEntity.ok(product);
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return ResponseEntity.notFound().build();
         }
     }
 
-
     @Override
-    public ResponseEntity<Product> deleteProductById(Integer productId) {
-       // return ProductApi.super.deleteProductById(productName);
-        Product updatedProduct= cartService.deleteProductById(productId);
-        return ResponseEntity.ok(updatedProduct);
+    public ResponseEntity<Product> deleteProductById(@RequestParam("productId") Integer productId) {
+        cartService.deleteProductById(productId);
+        return ResponseEntity.noContent().build();
     }
+
 }

@@ -3,103 +3,79 @@ package com.example.test1.Services;
 
 import com.example.test1.generated.rest.models.Cart;
 import com.example.test1.generated.rest.models.Product;
-//import com.example.test1.repositories.CartRepository;
-//import com.example.test1.repositories.ProductRepository;
-import lombok.Getter;
+import com.example.test1.generated.rest.models.Status;
+import com.example.test1.repositories.CartRepository;
+import com.example.test1.repositories.ProductRepository;
+import lombok.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class CartService {
-//    @Autowired
-//    private CartRepository cartRepository;
-//
-//    @Autowired
-//    private ProductRepository productRepository;
 
-    @Getter
-    private Cart cart;
+    @Autowired
+    private CartRepository cartRepository;
 
-    public CartService() {
-        this.cart = new Cart();
-        if (this.cart.getProducts() == null) {
-            this.cart.setProducts(new ArrayList<>());
+    @Autowired
+    private ProductRepository productRepository;
 
-        }
+    public Cart getCart(int cartId) {
+        Optional<Cart> cart = cartRepository.findById(cartId);
+        return cart.orElse(null);
     }
 
-    public Product getProductByName(String productName) {
-        return this.cart.getProducts().stream()
-                .filter(x -> x.getProductName().contains(productName))
-                .findFirst()
-                .orElse(null);
+    public Cart addNewItemToCart(int cartId, Product product) {
+        Cart cart = getCart(cartId);
+        if (cart != null) {
+            product.setCart(cart);
+            cart.getProducts().add(product);
+            cart.setTotalPrice(cart.getTotalPrice() + product.getProductPrice() * product.getQuantity());
+            productRepository.save(product);
+            cartRepository.save(cart);
+        }
+        return cart;
     }
 
-    public Cart addItemToCart(Product product) {
-        if (this.cart.getProducts() == null) {
-            this.cart.setProducts(new ArrayList<>()); // Ensure the products list is initialized
-        }
-        this.cart.getProducts().add(product);
-        //return this.cart;
-        product.setCartId(this.cart.getCartId()); // Set the cartId in product
-
-        // Save product and cart to in-memory data structures
-        // This example uses an in-memory list to store products
-        // This will not persist data between application restarts
-        List<Product> products = this.cart.getProducts();
-        int maxId = products.stream().mapToInt(Product::getProductId).max().orElse(0);
-        product.setProductId(maxId + 1);
-
-        return this.cart;
-        //daca am, dau idu
-        //daca nu am , inseamna ca e cartu nou, si at fac cart nou
+    public Product getItemByNameNew(String name) {
+        return productRepository.findByProductName(name);
     }
-//public Cart addItemToCart(Product product) {
-//    if (this.cart.getProducts() == null) {
-//        this.cart.setProducts(new ArrayList<>()); // Ensure the products list is initialized
-//    }
-//    this.cart.getProducts().add(product);
-//    product.setCartId(this.cart.getCartId()); // Set the cartId in product
-//    productRepository.save(product); // Save product
-//    cartRepository.save(this.cart); // Save cart
-//    return this.cart;
-//}
 
-    public Cart removeItemFromCart(String productName) {
-        Product p = this.cart.getProducts().stream()
-                .filter(p1 -> p1.getProductName().equals(productName))
-                .findFirst()
-                .orElse(null);
-
-        if (p != null) {
-            this.cart.getProducts().remove(p);
+    public Cart removeItem(String productName, int cartId) {
+        Cart cart = getCart(cartId);
+        if (cart != null) {
+            List<Product> products = cart.getProducts();
+            products.removeIf(product -> product.getProductName().equals(productName));
+            cartRepository.save(cart);
         }
-        return this.cart;
+        return cart;
+    }
 
+    public Cart closeCart(int cartId) {
+        Cart cart = getCart(cartId);
+        if (cart != null) {
+            cart.setStatus(Cart.StatusEnum.CLOSE);
+            cartRepository.save(cart);
+        }
+        return cart;
+    }
+
+    public List<Product> getAllProducts() {
+        return productRepository.findAll();
     }
 
     public Product getProductById(int productId) {
-        return cart.getProducts().stream()
-                .filter(product -> product.getProductId() == productId)
-                .findFirst()
-                .orElse(null);
+        return productRepository.findById(productId).orElse(null);
     }
 
-    public Product deleteProductById(int productId) {
-        Product p = this.cart.getProducts().stream()
-                .filter(p1 -> p1.getProductId() == productId)
-                .findFirst()
-                .orElse(null);
-
-        if (p != null) {
-            this.cart.getProducts().remove(p);
-        }
-
-        return p;
+    public void deleteProductById(int productId) {
+        productRepository.deleteById(productId);
     }
 }
-
-

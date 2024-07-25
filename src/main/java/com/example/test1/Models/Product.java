@@ -1,20 +1,22 @@
-package com.example.test1.Models;  // Ensure this is the correct package
+package com.example.test1.Models;
 
+import jakarta.persistence.*;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "product")
 public class Product {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
     private int productId;
 
@@ -23,16 +25,11 @@ public class Product {
 
     @Column(name = "product_price")
     private int productPrice;
-    //add cantitate
-    //update la cantitate
 
-    public Product() {
-    }
+    @Column(name = "quantity")
+    private int quantity;
 
-    public Product(String productName, int productPrice, int productId) {
-        this.productName = productName;
-        this.productPrice = productPrice;
-        this.productId = productId;
-    }
-
+    @ManyToOne
+    @JoinColumn(name = "cart_id", nullable = false)
+    public Cart cart;
 }

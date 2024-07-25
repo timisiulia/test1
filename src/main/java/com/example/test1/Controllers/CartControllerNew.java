@@ -10,11 +10,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.NativeWebRequest;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
 @CrossOrigin
-
 public class CartControllerNew implements  CartApi {
 
     @Autowired
@@ -30,32 +30,36 @@ public class CartControllerNew implements  CartApi {
     }
 
     @Override
-    public ResponseEntity<Cart> getCart() {
-        return ResponseEntity.ok(cartService.getCart());
-    }
-
-
-    @Override
-    public ResponseEntity<Cart> addNewItemToCart(Product product) {
-        Cart updatedCart = cartService.addItemToCart(product);
-        return ResponseEntity.ok(updatedCart);
+    public ResponseEntity<Cart> getCart(@RequestParam("cartId") Integer cartId) {
+        Cart cart = cartService.getCart(cartId);
+        return ResponseEntity.ok(cart);
     }
 
     @Override
-    public ResponseEntity<Product> getItemByNameNew(String name) {
-        Product product= cartService.getProductByName(name);
+    public ResponseEntity<Cart> addNewItemToCart(@RequestParam("cartId") Integer cartId, @RequestBody Product product) {
+        Cart cart = cartService.addNewItemToCart(cartId, product);
+        return ResponseEntity.ok(cart);
+    }
+
+    @Override
+    public ResponseEntity<Product> getItemByNameNew(@RequestParam("name") String name) {
+        Product product = cartService.getItemByNameNew(name);
         if (product != null) {
             return ResponseEntity.ok(product);
         } else {
-            return ResponseEntity.status(404).body(null);
+            return ResponseEntity.notFound().build();
         }
-        //return CartApi.super.getItemByNameNew(name);
     }
 
     @Override
-    public ResponseEntity<Cart> removedItem(String productName) {
-        Cart updatedCart = cartService.removeItemFromCart(productName);
-        return ResponseEntity.ok(updatedCart);
-        //return CartApi.super.removedItem(productName);
+    public ResponseEntity<Cart> removeItem(@RequestParam("productName") String productName, @RequestParam("cartId") Integer cartId) {
+        Cart cart = cartService.removeItem(productName, cartId);
+        return ResponseEntity.ok(cart);
+    }
+
+    @Override
+    public ResponseEntity<Cart> closeCart(@RequestParam("cartId") Integer cartId) {
+        Cart cart = cartService.closeCart(cartId);
+        return ResponseEntity.ok(cart);
     }
 }

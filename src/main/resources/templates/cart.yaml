@@ -15,6 +15,13 @@ paths:
       operationId: getCart
       tags:
         - Cart
+      parameters:
+        - name: cartId
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: ID of the cart
       responses:
         '200':
           description: Cart obtained successfully
@@ -29,6 +36,13 @@ paths:
       operationId: addNewItemToCart
       tags:
         - Cart
+      parameters:
+        - name: cartId
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: ID of the cart
       requestBody:
         description: Product to be added
         required: true
@@ -70,7 +84,7 @@ paths:
   /cartNew/delete-item-new:
     delete:
       description: Remove an item from the cart
-      operationId: RemovedItem
+      operationId: removeItem
       tags:
         - Cart
       parameters:
@@ -80,6 +94,12 @@ paths:
           schema:
             type: string
           description: Name of the product
+        - name: cartId
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: ID of the cart
       responses:
         '200':
           description: Item removed from the cart successfully
@@ -89,6 +109,29 @@ paths:
                 $ref: '#/components/schemas/Cart'
         '404':
           description: Product not found in the cart
+
+  /cartNew/close:
+    get:
+      description: Close the cart and calculate the total price
+      operationId: closeCart
+      tags:
+        - Cart
+      parameters:
+        - name: cartId
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: ID of the cart
+      responses:
+        '200':
+          description: Cart closed and total price calculated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '404':
+          description: Cart not found
 
   /products:
     get:
@@ -160,6 +203,19 @@ components:
         cartId:
           type: integer
           description: ID of the cart
+        userId:
+          type: integer
+          description: ID of the user
+        totalPrice:
+          type: number
+          format: double
+          description: Total price of the cart
+        status:
+          type: string
+          enum:
+            - Open
+            - Close
+          description: Status of the cart
         products:
           type: array
           items:
@@ -179,6 +235,17 @@ components:
           type: integer
           format: int32
           description: Price of the product
-        cartId:
+        quantity:
           type: integer
-          description: ID of the cart the product belongs to
+          format: int32
+          description: Quantity of the product
+        cart:
+          $ref: '#/components/schemas/Cart'
+          description: Cart object associated with the product
+
+    Status:
+      type: string
+      enum:
+        - Open
+        - Close
+      description: Status of the cart
